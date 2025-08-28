@@ -1,0 +1,23 @@
+import React from "react";
+
+const Checkbox = ({ checked, onChange, label, disabled = false, className = "", ...props }) => {
+    return (
+        <label
+            className={`flex items-center gap-2 cursor-pointer select-none ${
+                disabled ? "opacity-50 cursor-not-allowed" : ""
+            } ${className}`}
+        >
+            <input
+                type="checkbox"
+                checked={checked}
+                onChange={onChange}
+                disabled={disabled}
+                className="h-4 w-4 rounded border-gray-400 text-blue-600 "
+                {...props}
+            />
+            {label && <span className="text-sm text-gray-700">{label}</span>}
+        </label>
+    );
+};
+
+export default Checkbox;
