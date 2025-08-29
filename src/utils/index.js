@@ -1,2 +1,2 @@
-export { validateField as validation } from "./validation";
+export { formSchema } from "./validationSchemas";
 export { printSelectedRows } from "./printTable";

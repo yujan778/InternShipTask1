@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { Table, Textfield } from "./components";
 import { countryOption, skillOption, columns, data as initialData } from "./Data/index.data";
-import { Form } from "./container/index";
+import { MyForm } from "./container/index";
 import { printSelectedRows } from "./utils";
 
 function App() {
@@ -41,7 +41,7 @@ function App() {
 
             {/* Form Section */}
             <div className="mb-8">
-                <Form skills={skillOption} countries={countryOption} />
+                <MyForm skills={skillOption} countries={countryOption} />
             </div>
 
             {/* Table Section */}

@@ -19,49 +19,29 @@ const SelectField = ({
 }) => {
   const handleChange = (selectedOption) => {
     if (isMulti) {
-      onChange(name, selectedOption || []);
+      onChange(Array.isArray(selectedOption) ? selectedOption : []);
     } else {
-      onChange(name, selectedOption);
+      onChange(selectedOption || null);
     }
   };
 
-  // Default styles to match input field outline
   const defaultStyles = {
     control: (provided, state) => ({
       ...provided,
-      border: state.isFocused
-        ? "2px solid #10B981" // emerald-500 for focus
-        : "1px solid #D1D5DB", // gray-300 normal
+      border: state.isFocused ? "2px solid #10B981" : "1px solid #D1D5DB",
       boxShadow: "none",
-      "&:hover": {
-        borderColor: "#10B981", // hover same as focus
-      },
-      borderRadius: "0.375rem", // rounded-md
+      "&:hover": { borderColor: "#10B981" },
+      borderRadius: "0.375rem",
       minHeight: "2.5rem",
     }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: "#6B7280", // text-gray-500
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      color: "#111827", // text-gray-900
-    }),
-    multiValue: (provided) => ({
-      ...provided,
-      backgroundColor: "#D1FAE5", // emerald-100 for tags
-    }),
-    multiValueLabel: (provided) => ({
-      ...provided,
-      color: "#065F46", // emerald-800
-    }),
+    placeholder: (provided) => ({ ...provided, color: "#6B7280" }),
+    singleValue: (provided) => ({ ...provided, color: "#111827" }),
+    multiValue: (provided) => ({ ...provided, backgroundColor: "#D1FAE5" }),
+    multiValueLabel: (provided) => ({ ...provided, color: "#065F46" }),
     multiValueRemove: (provided) => ({
       ...provided,
       color: "#065F46",
-      ":hover": {
-        backgroundColor: "#10B981",
-        color: "white",
-      },
+      ":hover": { backgroundColor: "#10B981", color: "white" },
     }),
   };
 
@@ -82,7 +62,7 @@ const SelectField = ({
         isMulti={isMulti}
         isSearchable={isSearchable}
         isDisabled={disabled}
-        styles={{ ...defaultStyles, ...customStyles }} 
+        styles={{ ...defaultStyles, ...customStyles }}
       />
 
       {error && <ErrorMessage message={error} />}
