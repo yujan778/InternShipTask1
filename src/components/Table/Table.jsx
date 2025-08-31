@@ -1,32 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import PropTypes from "prop-types";
+
+
+import{TableHead, TableBody, TablePagination} from "./index";
+
 import { FiTrash2, FiPrinter } from "react-icons/fi";
 import { Button } from "../index";
 
-const Table = ({ columns, data, pageSize = 5, onDelete, onPrint }) => {
+const Table = ({ columns, data, pageSize, selectable, actions, onDelete, onPrint }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedRows, setSelectedRows] = useState([]);
 
-    const totalPages = Math.ceil(data.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const paginatedData = data.slice(startIndex, startIndex + pageSize);
+    const totalPages = useMemo(() => Math.ceil(data.length / pageSize), [data.length, pageSize]);
 
-    const toggleRow = (id) => {
+    const paginatedData = useMemo(() => {
+        const start = (currentPage - 1) * pageSize;
+        return data.slice(start, start + pageSize);
+    }, [currentPage, data, pageSize]);
+
+    const handleSelectRow = (id) => {
         setSelectedRows((prev) =>
-            prev.includes(id) ? prev.filter((row) => row !== id) : [...prev, id]
+            prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
         );
     };
 
-    const toggleAll = () => {
-        if (selectedRows.length === paginatedData.length) {
+    const handleSelectAll = () => {
+        if (selectedRows.length === data.length) {
             setSelectedRows([]);
         } else {
-            setSelectedRows(paginatedData.map((row) => row.id));
+            setSelectedRows(data.map((row) => row.id));
         }
     };
 
+    const handleAction = (action, row) => {
+        if (action.label === "Edit") {
+            alert(`Edit row ${row.id} - ${row.name}`);
+        }
+        if (action.label === "Delete") {
+            onDelete([row.id]);
+            setSelectedRows((prev) => prev.filter((id) => id !== row.id));
+        }
+    };
+
+    // const handleBulkDelete = () => {
+    //     if (selectedRows.length) {
+    //         onDelete(selectedRows);
+    //         setSelectedRows([]);
+    //     }
+    // };
+
+    // const handleBulkPrint = () => {
+    //     if (selectedRows.length) {
+    //         onPrint(selectedRows);
+    //         setSelectedRows([]);
+    //     }
+    // };
+
+    // Map actions to include click handlers
+    const mappedActions =
+        actions?.map((action) => ({
+            ...action,
+            onClick: handleAction.bind(null, action),
+        })) || [];
+
     return (
-        <div className="p-4 bg-white shadow-md rounded-2xl">
-            {/* Action Buttons aligned to right */}
+        <div className="overflow-x-auto">
             {selectedRows.length > 0 && (
                 <div className="flex justify-end gap-2 mb-3">
                     <Button
@@ -47,73 +85,45 @@ const Table = ({ columns, data, pageSize = 5, onDelete, onPrint }) => {
                 </div>
             )}
 
-            {/* Table */}
-            <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-200 rounded-lg">
-                    <thead className="bg-gray-100 text-gray-700">
-                        <tr>
-                            <th className="p-2 border text-center">
-                                <input
-                                    type="checkbox"
-                                    checked={
-                                        selectedRows.length === paginatedData.length &&
-                                        paginatedData.length > 0
-                                    }
-                                    onChange={toggleAll}
-                                />
-                            </th>
-                            {columns.map((col) => (
-                                <th key={col.accessor} className="p-2 text-left border">
-                                    {col.Header}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {paginatedData.map((row) => (
-                            <tr key={row.id} className="hover:bg-gray-50">
-                                <td className="p-2 border text-center">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedRows.includes(row.id)}
-                                        onChange={() => toggleRow(row.id)}
-                                    />
-                                </td>
-                                {columns.map((col) => (
-                                    <td key={col.accessor} className="p-2 border">
-                                        {row[col.accessor]}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            <table className="min-w-full border border-gray-200">
+                <TableHead
+                    columns={columns}
+                    selectable={selectable}
+                    selectAllChecked={selectedRows.length === data.length && data.length > 0}
+                    onSelectAll={handleSelectAll}
+                />
+                <TableBody
+                    columns={columns}
+                    data={paginatedData}
+                    selectedRows={selectedRows}
+                    onSelectRow={handleSelectRow}
+                    selectable={selectable}
+                    actions={mappedActions}
+                />
+            </table>
 
-            {/* Pagination */}
-            <div className="flex justify-between items-center mt-3">
-                <span className="text-sm text-gray-600">
-                    Page {currentPage} of {totalPages}
-                </span>
-                <div className="flex gap-2">
-                    <Button
-                        variant="outline"
-                        disabled={currentPage === 1}
-                        onClick={() => setCurrentPage((p) => p - 1)}
-                    >
-                        Prev
-                    </Button>
-                    <Button
-                        variant="outline"
-                        disabled={currentPage === totalPages}
-                        onClick={() => setCurrentPage((p) => p + 1)}
-                    >
-                        Next
-                    </Button>
-                </div>
-            </div>
+            <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+            />
         </div>
     );
+};
+
+Table.propTypes = {
+    columns: PropTypes.array.isRequired,
+    data: PropTypes.array.isRequired,
+    pageSize: PropTypes.number,
+    selectable: PropTypes.bool,
+    actions: PropTypes.array,
+    onDelete: PropTypes.func,
+    onPrint: PropTypes.func,
+};
+
+Table.defaultProps = {
+    pageSize: 5,
+    selectable: true,
 };
 
 export default Table;

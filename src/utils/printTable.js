@@ -5,6 +5,9 @@ export const printSelectedRows = ({ columns, data, selectedIds }) => {
     const rowsToPrint = data.filter((row) => selectedIds.includes(row.id));
     if (rowsToPrint.length === 0) return false;
 
+    // Skip action columns (since they don’t exist in data)
+    const printableColumns = columns.filter((col) => !col.isAction);
+
     // Open new window
     const printWindow = window.open("", "", "width=800,height=600");
 
@@ -25,15 +28,15 @@ export const printSelectedRows = ({ columns, data, selectedIds }) => {
             <table>
                 <thead>
                     <tr>
-                        ${columns.map((col) => `<th>${col.header}</th>`).join("")}
+                        ${printableColumns.map((col) => `<th>${col.label}</th>`).join("")}
                     </tr>
                 </thead>
                 <tbody>
                     ${rowsToPrint
                         .map(
                             (row) =>
-                                `<tr>${columns
-                                    .map((col) => `<td>${row[col.accessor]}</td>`)
+                                `<tr>${printableColumns
+                                    .map((col) => `<td>${row[col.key]}</td>`)
                                     .join("")}</tr>`
                         )
                         .join("")}
