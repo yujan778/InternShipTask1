@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
-import { Textfield, SelectField, Button, Checkbox } from "../../components";
 import { Formik, Form } from "formik";
-import { formSchema } from "../../utils";
 import { FiUser, FiMail, FiAlertCircle, FiPhone, FiCalendar } from "react-icons/fi";
 import { FaGlobe, FaTools } from "react-icons/fa";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { formSchema } from "../../utils";
+import { Textfield, SelectField, Button, CheckboxGroup } from "../../components";
+import { selectFields, textFields, checkboxFields } from "../../config/formFields";
 
 const MyForm = ({ skills, countries }) => {
     return (
@@ -15,8 +16,8 @@ const MyForm = ({ skills, countries }) => {
                 email: "",
                 phone: "",
                 dob: "",
-                country: "", 
-                skills: [], 
+                country: "",
+                skills: [],
                 skillsCheckbox: [],
             }}
             validationSchema={formSchema}
@@ -27,105 +28,61 @@ const MyForm = ({ skills, countries }) => {
             }}
         >
             {({ values, errors, touched, setFieldValue, setFieldTouched, getFieldProps }) => {
-
-                
                 return (
                     <Form className="max-w-md mx-auto p-4 bg-white rounded shadow space-y-4">
-                        {/* Full Name */}
-                        <Textfield
-                            label="Full Name"
-                            name="fullName"
-                            placeholder="Enter your full name"
-                            icon={<FiUser />}
-                            errorIcon={<FiAlertCircle />}
-                            error={touched.fullName && errors.fullName}
-                            {...getFieldProps("fullName")}
-                        />
+                        {textFields.map((field) => (
+                            <Textfield
+                                key={field.name}
+                                {...field}
+                                errorIcon={FiAlertCircle}
+                                error={touched[field.name] && errors[field.name]}
+                                {...getFieldProps(field.name)}
+                            />
+                        ))}
 
-                        {/* Email */}
-                        <Textfield
-                            label="Email"
-                            name="email"
-                            type="email"
-                            placeholder="Enter your email"
-                            icon={<FiMail />}
-                            errorIcon={<FiAlertCircle />}
-                            error={touched.email && errors.email}
-                            {...getFieldProps("email")}
-                        />
+                        {selectFields.map((field) => {
+                            const options = field.optionsKey === "countries" ? countries : skills;
 
-                        {/* Phone */}
-                        <Textfield
-                            label="Phone"
-                            name="phone"
-                            type="tel"
-                            placeholder="Enter your phone number"
-                            icon={<FiPhone />}
-                            errorIcon={<FiAlertCircle />}
-                            error={touched.phone && errors.phone}
-                            {...getFieldProps("phone")}
-                        />
-
-                        {/* Date of Birth */}
-                        <Textfield
-                            label="Date of Birth"
-                            name="dob"
-                            type="date"
-                            placeholder="Select your DOB"
-                            icon={<FiCalendar />}
-                            errorIcon={<FiAlertCircle />}
-                            error={touched.dob && errors.dob}
-                            {...getFieldProps("dob")}
-                        />
-
-                        {/* Country */}
-                        <SelectField
-                            label="Country"
-                            name="country"
-                            value={countries.find((c) => c.value === values.country) || null}
-                            onChange={(val) => setFieldValue("country", val?.value || "")}
-                            onBlur={() => setFieldTouched("country", true)}
-                            options={countries}
-                            placeholder="Select a country"
-                        />
-
-                        {/* Skills Multi-Select */}
-                        <SelectField
-                            label="Skills"
-                            name="skills"
-                            value={skills.filter((s) => values.skills.includes(s.value))} // map values to objects
-                            onChange={(vals) =>
-                                setFieldValue(
-                                    "skills",
-                                    Array.isArray(vals) ? vals.map((v) => v.value) : []
-                                )
-                            }
-                            onBlur={() => setFieldTouched("skills", true)}
-                            options={skills}
-                            isMulti
-                            placeholder="Select skills"
-                        />
-
-                        {/* Skills Checkbox */}
-                        <div className="grid grid-cols-3 gap-2">
-                            {skills.map((skill) => (
-                                <Checkbox
-                                    key={skill.value}
-                                    label={skill.label}
-                                    value={skill.value}
-                                    checked={values.skillsCheckbox.includes(skill.value)}
-                                    onChange={() => {
-                                        const updated = values.skillsCheckbox.includes(skill.value)
-                                            ? values.skillsCheckbox.filter((s) => s !== skill.value)
-                                            : [...values.skillsCheckbox, skill.value];
-
-                                        setFieldValue("skillsCheckbox", updated);
-
-                                        setFieldTouched("skillsCheckbox", true);
-                                    }}
+                            return (
+                                <SelectField
+                                    key={field.name}
+                                    name={field.name}
+                                    label={field.label}
+                                    placeholder={field.placeholder}
+                                    options={options}
+                                    isMulti={field.isMulti}
+                                    value={
+                                        field.isMulti
+                                            ? options.filter((o) =>
+                                                  values[field.name].includes(o.value)
+                                              )
+                                            : options.find((o) => o.value === values[field.name]) ||
+                                              null
+                                    }
+                                    onChange={(val) =>
+                                        setFieldValue(
+                                            field.name,
+                                            field.isMulti
+                                                ? (val || []).map((v) => v.value)
+                                                : val?.value || ""
+                                        )
+                                    }
+                                    onBlur={() => setFieldTouched(field.name, true)}
                                 />
-                            ))}
-                        </div>
+                            );
+                        })}
+
+                        {checkboxFields.map((field) => {
+                            const options = field.optionsKey === "skills" ? skills : countries;
+                            return (
+                                <CheckboxGroup
+                                    key={field.name}
+                                    name={field.name}
+                                    label={field.label}
+                                    options={options}
+                                />
+                            );
+                        })}
 
                         {/* Error message */}
                         {touched.skillsCheckbox &&

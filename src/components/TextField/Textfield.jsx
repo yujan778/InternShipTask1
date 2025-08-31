@@ -1,84 +1,88 @@
 import React from "react";
 import { ErrorMessage } from "../index";
 
-const defaultInputClasses = `w-full border border-gray-400 p-2 rounded-md focus:outline-none focus:border-emerald-500`;
+const defaultInputClasses =
+  "w-full border border-gray-400 p-2 rounded-md focus:outline-none focus:border-emerald-500";
 
 const Textfield = ({
-    label,
-    value,
-    onChange,
-    placeholder = "",
-    type = "text",
-    error = "",
-    required = false,
-    disabled = false,
-    className = "",
-    inputClassName = "",
-    textarea = false,
-    rows = 3,
-    icon,
-    errorIcon,
-    name,
-    ...props
+  label,
+  value,
+  onChange,
+  placeholder = "",
+  type = "text",
+  error = "",
+  required = false,
+  disabled = false,
+  className = "",
+  inputClassName = "",
+  textarea = false,
+  rows = 3,
+  icon,
+  errorIcon,
+  name,
+  ...props
 }) => {
-    const iconPadding = icon ? "pl-10" : "";
-    const errorPadding = errorIcon ? "pr-10" : "";
-    const finalInputClass =
-        inputClassName ||
-        `w-full border border-gray-400 p-2 rounded-md focus:outline-none focus:border-emerald-500 ${iconPadding} ${errorPadding}`;
-    const errorClass = error ? "border-red-500" : "";
+  const Icon = icon; // 👈 alias so it starts with uppercase
+  const ErrorIcon = errorIcon; // 👈 alias for error icon
 
-    return (
-        <div className={`flex flex-col mb-4 ${className}`}>
-            {label && (
-                <label htmlFor={name} className="mb-1 font-medium">
-                    {label} {required && <span className="text-red-500">*</span>}
-                </label>
-            )}
+  const iconPadding = Icon ? "pl-10" : "";
+  const errorPadding = ErrorIcon ? "pr-10" : "";
+  const finalInputClass =
+    inputClassName ||
+    `${defaultInputClasses} ${iconPadding} ${errorPadding}`;
+  const errorClass = error ? "border-red-500" : "";
 
-            <div className="relative">
-                {icon && (
-                    <div className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-                        {icon}
-                    </div>
-                )}
+  return (
+    <div className={`flex flex-col mb-4 ${className}`}>
+      {label && (
+        <label htmlFor={name} className="mb-1 font-medium">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
 
-                {textarea ? (
-                    <textarea
-                        id={name}
-                        name={name}
-                        value={value}
-                        onChange={onChange}
-                        placeholder={placeholder}
-                        rows={rows}
-                        disabled={disabled}
-                        className={`${finalInputClass} ${errorClass}`}
-                        {...props}
-                    />
-                ) : (
-                    <input
-                        id={name}
-                        name={name}
-                        type={type}
-                        value={value}
-                        onChange={onChange}
-                        placeholder={placeholder}
-                        disabled={disabled}
-                        className={`${finalInputClass} ${errorClass}`}
-                        {...props}
-                    />
-                )}
+      <div className="relative">
+        {Icon && (
+          <div className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+            <Icon />
+          </div>
+        )}
 
-                {errorIcon && error && (
-                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
-                        {errorIcon}
-                    </div>
-                )}
-            </div>
+        {textarea ? (
+          <textarea
+            id={name}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            rows={rows}
+            disabled={disabled}
+            className={`${finalInputClass} ${errorClass}`}
+            {...props}
+          />
+        ) : (
+          <input
+            id={name}
+            name={name}
+            type={type}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`${finalInputClass} ${errorClass}`}
+            {...props}
+          />
+        )}
 
-            {error && <ErrorMessage message={error} />}
-        </div>
-    );
+        {ErrorIcon && error && (
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
+            <ErrorIcon />
+          </div>
+        )}
+      </div>
+
+      {error && <ErrorMessage message={error} />}
+    </div>
+  );
 };
 
 export default Textfield;
